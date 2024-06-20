@@ -1,6 +1,6 @@
-from keras.models import Model
-from keras.layers import Input, Dense, Concatenate
-from keras.optimizers import Adam
+from keras.api.models import Model
+from keras.api.layers import Input, Dense, Concatenate
+from keras.api.optimizers import Adam
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -24,35 +24,31 @@ data = [
 ]
 
 def preprocess_data(data):
-    # Assuming data is a list of ((input1, input2), output)
-    X = []  # Inputs
-    y = []  # Outputs
+    X = []
+    y = []
 
     for ((num1, num2), sum_) in data:
-        # Break down each number into its digits
         X.append(
-            [int(d) for d in str(num1).zfill(4)] +  # Pad with zeros to ensure 4 digits
-            [int(d) for d in str(num2).zfill(4)]
+            [int(d) for d in str(num1).zfill(4)]+[int(d) for d in str(num2).zfill(4)]
         )
-        # Process output similarly but ensure it's 4 digits (truncate if necessary)
         y.append(
             [int(d) for d in str(sum_).zfill(4)[:4]]
         )
 
-    # Normalize digits to be between 0 and 1
-    X_normalized = np.array(X) / 9.0  # Since 9 is the max digit value
+    X_normalized = np.array(X) / 9.0
     y_normalized = np.array(y) / 9.0
 
     return X_normalized, y_normalized
 
+# Processing the raw data
 X_normalized, y_normalized = preprocess_data(data)
-# print(X_normalized, '\n\n', y_normalized)
+print(X_normalized, '\n\n', y_normalized)
 
-# Assuming your inputs are normalized and ready
-input_layer = Input(shape=(8,))  # Combined input for both numbers, each represented by 4 digits
+# ML Model
+input_layer = Input(shape=(8,))
 fc1 = Dense(128, activation='relu')(input_layer)
 fc2 = Dense(64, activation='relu')(fc1)
-output_layer = Dense(4, activation='sigmoid')(fc2)  # Predicting 4 normalized digits
+output_layer = Dense(4, activation='sigmoid')(fc2)
 
 model = Model(inputs=input_layer, outputs=output_layer)
 model.compile(optimizer=Adam(learning_rate=0.001), loss='mean_squared_error')
@@ -70,11 +66,10 @@ plt.legend(['Train', 'Validation'], loc='upper left')
 plt.show()
 
 def preprocess_custom_data(num1, num2):
-    # Convert numbers to their digit representation, normalized
-    digits_num1 = [int(d) for d in str(num1).zfill(4)]  # Ensure it is a 4-digit number
+    digits_num1 = [int(d) for d in str(num1).zfill(4)]
     digits_num2 = [int(d) for d in str(num2).zfill(4)]
-    combined = digits_num1 + digits_num2  # Combine the digit representations
-    X_custom = np.array([combined]) / 9.0  # Normalize and ensure it's a 2D array for Keras
+    combined = digits_num1 + digits_num2
+    X_custom = np.array([combined]) / 9.0
     return X_custom
 
 # 입력인자
